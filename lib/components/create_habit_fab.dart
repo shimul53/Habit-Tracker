@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CreateHabitFloatingActionButton extends StatelessWidget {
-  const CreateHabitFloatingActionButton({super.key});
+  final Function()? onPressed;
+  const CreateHabitFloatingActionButton({super.key,required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return  FloatingActionButton(
-        onPressed: (){},
+        onPressed: onPressed,
         child: const Icon(Icons.add),
     );
   }
