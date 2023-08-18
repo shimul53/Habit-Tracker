@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habit_traker_app/components/habit_tile.dart';
+import 'package:habit_traker_app/components/month_summary.dart';
 import 'package:habit_traker_app/data/habit_database.dart';
 import 'package:hive/hive.dart';
 
@@ -40,6 +41,7 @@ class _HomePageState extends State<HomePage> {
    setState(() {
      db.todaysHabitList[index][1] = value;
    });
+   db.updateDatabase();
   }
 
   //create a new habit
@@ -62,6 +64,7 @@ class _HomePageState extends State<HomePage> {
    _newHabitNameController.clear();
    //pop dialog box
    Navigator.of(context).pop();
+   db.updateDatabase();
  }
   //cancel new habit
   void cancelDialogBox(){
@@ -69,6 +72,7 @@ class _HomePageState extends State<HomePage> {
     _newHabitNameController.clear();
     //pop dialog box
     Navigator.of(context).pop();
+
   }
 
   //open habit settings to edit
@@ -88,6 +92,9 @@ class _HomePageState extends State<HomePage> {
    });
    _newHabitNameController.clear();
    Navigator.pop(context);
+   db.updateDatabase();
+
+
   }
 
   //delete habit
@@ -95,6 +102,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       db.todaysHabitList.removeAt(index);
     });
+    db.updateDatabase();
   }
 
   @override
@@ -102,17 +110,27 @@ class _HomePageState extends State<HomePage> {
     return  Scaffold(
       backgroundColor: Colors.grey[300],
       floatingActionButton:  CreateHabitFloatingActionButton(onPressed:createNewHabit,),
-      body: ListView.builder(
-        itemCount: db.todaysHabitList.length,
-          itemBuilder: (context,index){
-        return HabitTile(
-          habitName: db.todaysHabitList[index][0],
-          habitCompleted: db.todaysHabitList[index][1],
-          onChange: (value)=> checkBoxTapped(value,index),
-          settingsTapped: (context) => openHabitSettings(index),
-          deleteTapped: (context) =>  deleteHabit(index),
-        );
-      })
+      body: ListView(
+        children: [
+          //monthly summary heat map
+          MonthlySummary(datasets: db.heatMapDataSet, startDate: _myBox.get("START_DATE")),
+
+          //list of habits
+          ListView.builder(
+            shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: db.todaysHabitList.length,
+              itemBuilder: (context,index){
+                return HabitTile(
+                  habitName: db.todaysHabitList[index][0],
+                  habitCompleted: db.todaysHabitList[index][1],
+                  onChange: (value)=> checkBoxTapped(value,index),
+                  settingsTapped: (context) => openHabitSettings(index),
+                  deleteTapped: (context) =>  deleteHabit(index),
+                );
+              })
+        ],
+      )
 
     );
   }
